@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "PlayerAvatar.generated.h"
 
 UCLASS(Blueprintable)
@@ -37,6 +39,13 @@ protected:
 	int _HealthPoints;
 	float _AttackCountingDown;
 
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* _springArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* _cameraComponent;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -55,6 +64,16 @@ public:
 
 	void Attack();
 	void Hit(int damage);
+
+	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const
+	{
+		return _springArmComponent;
+	}
+
+	FORCEINLINE UCameraComponent* GetCameraComponent() const
+	{
+		return _cameraComponent;
+	}
 
 protected:
 	void DieProcess();
