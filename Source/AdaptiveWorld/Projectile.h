@@ -31,6 +31,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Visual, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* _MeshComponent;
+
 	float _LifeCountingDown;
 
 public:	

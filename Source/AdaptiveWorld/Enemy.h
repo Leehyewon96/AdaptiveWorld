@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Weapon.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -38,6 +39,9 @@ protected:
 	int _HealthPoints;
 	float _AttackCountingDown;
 	APawn* _chasedTarget = nullptr;
+
+	UClass* _WeaponClass; //해머의 블루프린트 클래스 타입 저장 용도
+	AWeapon* _Weapon;
 
 public:	
 	// Called every frame

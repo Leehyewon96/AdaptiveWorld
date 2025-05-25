@@ -10,6 +10,13 @@ UCLASS(Blueprintable)
 class AAdaptiveWorldCharacter : public ACharacter
 {
 	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
+	float Strength = 5;
+
+	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
+	float AttackRange = 200.0f;
 
 public:
 	AAdaptiveWorldCharacter();
@@ -21,6 +28,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	bool IsAttacking();
 
 private:
 	/** Top down camera */

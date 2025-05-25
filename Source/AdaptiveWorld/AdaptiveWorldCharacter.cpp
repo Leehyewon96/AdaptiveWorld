@@ -49,3 +49,8 @@ void AAdaptiveWorldCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 }
+
+bool AAdaptiveWorldCharacter::IsAttacking()
+{
+	return false;//(_AnimInstance->State == ECharacterState::Attack);
+}
