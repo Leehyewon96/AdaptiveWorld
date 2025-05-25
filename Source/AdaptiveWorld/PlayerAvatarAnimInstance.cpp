@@ -11,8 +11,8 @@ void UPlayerAvatarAnimInstance::OnStateAnimationEnds()
 	}
 	else
 	{
-		auto ownerAction = this->GetOwningActor();
-		auto playerAvatar = Cast<APlayerAvatar>(ownerAction);
+		auto ownerActor = this->GetOwningActor();
+		auto playerAvatar = Cast<APlayerAvatar>(ownerActor);
 		if (playerAvatar == nullptr)
 		{
 			return;
@@ -31,7 +31,7 @@ void UPlayerAvatarAnimInstance::OnStateAnimationEnds()
 		}
 		else if (State == EPlayerState::Die)
 		{
-
+			playerAvatar->DieProcess();
 		}
 	}
 }

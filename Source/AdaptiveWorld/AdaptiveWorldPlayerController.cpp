@@ -7,6 +7,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "AdaptiveWorldCharacter.h"
 #include "Engine/World.h"
+#include "PlayerAvatar.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -30,6 +31,15 @@ void AAdaptiveWorldPlayerController::BeginPlay()
 	}
 }
 
+void AAdaptiveWorldPlayerController::OnAttackPressed()
+{
+	auto playerAvatar = Cast<APlayerAvatar>(GetPawn());
+	if (playerAvatar->CanAttack())
+	{
+		playerAvatar->Attack();
+	}
+}
+
 void AAdaptiveWorldPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
@@ -50,6 +60,8 @@ void AAdaptiveWorldPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AAdaptiveWorldPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AAdaptiveWorldPlayerController::OnTouchReleased);
 	}
+
+	InputComponent->BindAction("Attack", IE_Pressed, this, &AAdaptiveWorldPlayerController::OnAttackPressed);
 }
 
 void AAdaptiveWorldPlayerController::OnInputStarted()
