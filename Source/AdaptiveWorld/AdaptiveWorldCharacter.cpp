@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AdaptiveWorldCharacter.h"
+#include "AdaptiveWorldAnimInstance.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -13,36 +14,15 @@
 
 AAdaptiveWorldCharacter::AAdaptiveWorldCharacter()
 {
-	// Set size for player capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
-	// Don't rotate character to camera direction
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
-	// Create a camera boom...
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
-	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
-
-	// Create a camera...
-	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
-	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
+}
+
+void AAdaptiveWorldCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	_AnimInstance = Cast<UAdaptiveWorldAnimInstance>(GetMesh()->GetAnimInstance());
+	_HealthPoints = HealthPoints;
 }
 
 void AAdaptiveWorldCharacter::Tick(float DeltaSeconds)
@@ -50,7 +30,53 @@ void AAdaptiveWorldCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 }
 
+float AAdaptiveWorldCharacter::GetHealthPoints()
+{
+	return _HealthPoints;
+}
+
+bool AAdaptiveWorldCharacter::IsKilled()
+{
+	return (_HealthPoints <= 0.0f);
+}
+
+bool AAdaptiveWorldCharacter::CanAttack()
+{
+	return (_AttackCountingDown <= 0.0f && _AnimInstance->State == ECharacterState::Locomotion);
+}
+
 bool AAdaptiveWorldCharacter::IsAttacking()
 {
-	return false;//(_AnimInstance->State == ECharacterState::Attack);
+	return (_AnimInstance->State == ECharacterState::Attack);
 }
+
+void AAdaptiveWorldCharacter::Attack()
+{
+	_AttackCountingDown = AttackInterval;
+
+}
+
+void AAdaptiveWorldCharacter::Hit(int damage)
+{
+	if (IsKilled())
+	{
+		return;
+	}
+
+	_HealthPoints -= damage;
+
+	_AnimInstance->State = ECharacterState::Hit;
+	if (IsKilled())
+	{
+		PrimaryActorTick.bCanEverTick = false;
+	}
+}
+
+void AAdaptiveWorldCharacter::DieProcess()
+{
+	PrimaryActorTick.bCanEverTick = false;
+	Destroy();
+	GEngine->ForceGarbageCollection(true);
+}
+
+

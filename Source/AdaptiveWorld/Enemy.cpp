@@ -4,7 +4,7 @@
 #include "Enemy.h"
 #include "Perception/PawnSensingComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "EnemyAnimInstance.h"
+#include "AdaptiveWorldAnimInstance.h"
 #include "EnemyController.h"
 
 
@@ -34,10 +34,17 @@ void AEnemy::BeginPlay()
 	_HealthPoints = HealthPoints;
 
 	_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(_WeaponClass));
-	_Weapon->Holder = this;
-	_Weapon->AttachToComponent(GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale,
-		FName("hand_rSocket"));
+	if (_Weapon && GetMesh() && GetMesh()->DoesSocketExist("hand_r"))
+	{
+		_Weapon->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::SnapToTargetIncludingScale,
+			FName("hand_r"));
+		_Weapon->Holder = this;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attach failed: Weapon or Mesh or Socket is invalid"));
+	}
 }
 
 // Called every frame
@@ -45,13 +52,12 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto animInst = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
-	animInst->Speed = GetCharacterMovement()->Velocity.Size2D();
+	_AnimInstance->Speed = GetCharacterMovement()->Velocity.Size2D();
 
 	//공격관련 상태 갱신
 	if (_AttackCountingDown == AttackInterval)
 	{
-		animInst->State = EEnemyState::Attack;
+		_AnimInstance->State = ECharacterState::Attack;
 	}
 
 	if (_AttackCountingDown > 0.0f)
@@ -60,72 +66,21 @@ void AEnemy::Tick(float DeltaTime)
 	}
 
 	//타겟 설정 갱신
-	if (_chasedTarget != nullptr && animInst->State == EEnemyState::Locomotion)
+	if (_chasedTarget != nullptr && _AnimInstance->State == ECharacterState::Locomotion)
 	{
 		auto enemyController = Cast<AEnemyController>(GetController());
 		enemyController->MakeAttackDecision(_chasedTarget);
 	}
 }
 
-int AEnemy::GetHealthPoints()
-{
-	return _HealthPoints;
-}
-
-bool AEnemy::IsKilled()
-{
-	return (_HealthPoints <= 0.0f);
-}
-
-bool AEnemy::CanAttack()
-{
-	auto animInst = GetMesh()->GetAnimInstance();
-	auto enemyAnimInst = Cast<UEnemyAnimInstance>(animInst);
-	return (_AttackCountingDown <= 0.0f && enemyAnimInst->State == EEnemyState::Locomotion);
-}
-
 void AEnemy::Chase(APawn* targetPawn)
 {
 	auto animInst = GetMesh()->GetAnimInstance();
-	auto enemyAnimInst = Cast<UEnemyAnimInstance>(animInst);
-	if (enemyAnimInst->State == EEnemyState::Locomotion)
+	auto enemyAnimInst = Cast<UAdaptiveWorldAnimInstance>(animInst);
+	if (enemyAnimInst->State == ECharacterState::Locomotion)
 	{
 		auto enemyController = Cast<AEnemyController>(GetController());
 		enemyController->MoveToActor(targetPawn, 90.0f);
 	}
 	_chasedTarget = targetPawn;
 }
-
-void AEnemy::Attack()
-{
-	GetController()->StopMovement();
-	_AttackCountingDown = AttackInterval;
-}
-
-void AEnemy::Hit(int damage)
-{
-	_HealthPoints -= damage;
-	auto animInst = GetMesh()->GetAnimInstance();
-	auto enemyAnimInst = Cast<UEnemyAnimInstance>(animInst);
-	enemyAnimInst->State = EEnemyState::Hit;
-
-	if (IsKilled())
-	{
-		DieProcess();
-	}
-}
-
-void AEnemy::DieProcess()
-{
-	PrimaryActorTick.bCanEverTick = false;
-	K2_DestroyActor();
-	GEngine->ForceGarbageCollection(true);
-}
-
-// Called to bind functionality to input
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-

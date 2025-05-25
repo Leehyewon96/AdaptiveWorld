@@ -3,6 +3,8 @@
 
 #include "Projectile.h"
 #include "PlayerAvatar.h"
+#include "Kismet/GameplayStatics.h"
+#include "AdaptiveWorldGameMode.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -18,7 +20,8 @@ AProjectile::AProjectile()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	_LifeCountingDown = Lifespan;
+	_AdaptiveWorldGameMode = Cast<AAdaptiveWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	Reset();
 }
 
 // Called every frame
@@ -48,8 +51,7 @@ void AProjectile::Tick(float DeltaTime)
 			if (playerAvatar != nullptr)
 			{
 				playerAvatar->Hit(Damage);
-				PrimaryActorTick.bCanEverTick = false;
-				Destroy();
+				_AdaptiveWorldGameMode->RecycleFireball(this);
 			}
 		}
 
@@ -61,5 +63,13 @@ void AProjectile::Tick(float DeltaTime)
 		PrimaryActorTick.bCanEverTick = false;
 		Destroy();
 	}
+}
+
+void AProjectile::Reset()
+{
+	_LifeCountingDown = Lifespan;
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorTickEnabled(true);
 }
 

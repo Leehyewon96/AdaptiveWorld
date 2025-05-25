@@ -38,6 +38,8 @@ protected:
 	int _HealthPoints;
 	float _ReloadCountingDown;
 
+	class AAdaptiveWorldGameMode* _AdaptiveWorldGameMode;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tower component", meta = (AllowPrivateAccess = "true"))
 	USphereComponent* _SphereComponent;

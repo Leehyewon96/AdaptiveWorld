@@ -6,7 +6,9 @@
 #include "Projectile.h"
 #include "Weapon.h"
 #include "AdaptiveWorldCharacter.h"
+#include "AdaptiveWorldGameMode.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ADefenseTower::ADefenseTower()
@@ -37,6 +39,8 @@ void ADefenseTower::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickInterval(0.5f);
+
+	_AdaptiveWorldGameMode = Cast<AAdaptiveWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 void ADefenseTower::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -108,8 +112,7 @@ bool ADefenseTower::CanFire()
 
 void ADefenseTower::Fire()
 {
-	auto fireball = Cast<AProjectile>(
-		GetWorld()->SpawnActor(_FireballClass));
+	auto fireball = _AdaptiveWorldGameMode->SpawnOrGetFireball(_FireballClass);
 
 	FVector startLocation = GetActorLocation();
 	startLocation.Z += 100.0f;

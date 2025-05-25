@@ -12,32 +12,48 @@ class AAdaptiveWorldCharacter : public ACharacter
 	GENERATED_BODY()
 	
 public:
+	AAdaptiveWorldCharacter();
+
+	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Param")
+	int HealthPoints = 100;
+
 	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
 	float Strength = 5;
 
 	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
+	float Armor = 1;
+
+	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
 	float AttackRange = 200.0f;
 
-public:
-	AAdaptiveWorldCharacter();
+	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
+	float AttackInterval = 3.0f;
 
+public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
-	/** Returns TopDownCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|Character", meta = (Displayname = "Get HP"))
+	float GetHealthPoints();
+	
+	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|Character")
+	bool IsKilled();
 
+	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|Character")
+	bool CanAttack();
 	bool IsAttacking();
 
-private:
-	/** Top down camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent;
+	
 
-	/** Camera boom positioning the camera above the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	virtual void Attack();
+	virtual void Hit(int damage);
+	void DieProcess();
+
+protected:
+	virtual void BeginPlay() override;
+
+	class UAdaptiveWorldAnimInstance* _AnimInstance;
+	int _HealthPoints;
+	float _AttackCountingDown;
 };
 

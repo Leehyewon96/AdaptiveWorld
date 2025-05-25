@@ -52,7 +52,7 @@ void AWeapon::OnWeaponBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 
 			AttachToComponent(Holder->GetMesh(),
 				FAttachmentTransformRules::SnapToTargetIncludingScale,
-				FName("hand_rSocket"));
+				FName("hand_r"));
 		}
 	}
 	else if (IsWithinAttackRange(0.0f, OtherActor))

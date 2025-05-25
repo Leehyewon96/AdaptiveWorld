@@ -3,7 +3,7 @@
 
 #include "PlayerAvatar.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "PlayerAvatarAnimInstance.h"
+#include "AdaptiveWorldAnimInstance.h"
 
 // Sets default values
 APlayerAvatar::APlayerAvatar()
@@ -47,19 +47,18 @@ void APlayerAvatar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UPlayerAvatarAnimInstance* animInst = Cast<UPlayerAvatarAnimInstance>(
-		GetMesh()->GetAnimInstance());
-	animInst->Speed = GetCharacterMovement()->Velocity.Size2D();
+	_AnimInstance->Speed = GetCharacterMovement()->Velocity.Size2D();
 
 	if (_AttackCountingDown == AttackInterval)
 	{
-		animInst->State = EPlayerState::Attack;
+		_AnimInstance->State = ECharacterState::Attack;
 	}
 
 	if (_AttackCountingDown > 0.0f)
 	{
 		_AttackCountingDown -= DeltaTime;
 	}
+
 }
 
 // Called to bind functionality to input
@@ -67,37 +66,5 @@ void APlayerAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
-
-int APlayerAvatar::GetHealthPoints()
-{
-	return 0;
-}
-
-bool APlayerAvatar::IsKilled()
-{
-	return false;
-}
-
-bool APlayerAvatar::CanAttack()
-{
-	UPlayerAvatarAnimInstance* animInst = Cast<UPlayerAvatarAnimInstance>(GetMesh()->GetAnimInstance());
-	return (_AttackCountingDown <= 0.0f && animInst->State == EPlayerState::Locomotion);
-}
-
-void APlayerAvatar::Attack()
-{
-	_AttackCountingDown = AttackInterval;
-}
-
-void APlayerAvatar::Hit(int damage)
-{
-}
-
-void APlayerAvatar::DieProcess()
-{
-	PrimaryActorTick.bCanEverTick = false;
-	Destroy();
-	GEngine->ForceGarbageCollection(true);
 }
 

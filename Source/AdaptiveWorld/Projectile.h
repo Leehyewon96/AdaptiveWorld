@@ -35,9 +35,9 @@ protected:
 	UStaticMeshComponent* _MeshComponent;
 
 	float _LifeCountingDown;
-
+	class AAdaptiveWorldGameMode* _AdaptiveWorldGameMode;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	void Reset();
 };
