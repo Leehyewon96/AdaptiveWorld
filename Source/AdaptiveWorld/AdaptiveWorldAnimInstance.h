@@ -31,4 +31,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnStateAnimationEnds();
+
 };

@@ -2,4 +2,15 @@
 
 
 #include "AdaptiveWorldGameState.h"
+#include <Net/UnrealNetwork.h>
 
+void AAdaptiveWorldGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AAdaptiveWorldGameState, Timer);
+}
+
+void AAdaptiveWorldGameState::OnTimerChanged()
+{
+	OnTimerChangedDelegate.Broadcast(Timer);
+}

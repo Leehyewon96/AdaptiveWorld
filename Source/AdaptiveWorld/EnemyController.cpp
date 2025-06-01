@@ -11,6 +11,7 @@ void AEnemyController::MakeAttackDecision(APawn* targetPawn)
 
 	if (dist <= controlledCharacter->AttackRange && controlledCharacter->CanAttack())
 	{
-		controlledCharacter->Attack();
+		StopMovement();
+		controlledCharacter->Attack_Broadcast_RPC();
 	}
 }

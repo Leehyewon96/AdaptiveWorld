@@ -13,5 +13,12 @@ UCLASS()
 class ADAPTIVEWORLD_API UAdaptiveWorldGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "AdativeWorld")
+	void StartListenServer();
+	UFUNCTION(BlueprintCallable, Category = "AdativeWorld")
+	void JoinAsCient(FString IPAddress);
+	UFUNCTION(BlueprintCallable, Category = "AdativeWorld")
+	void Leaveame();
 };

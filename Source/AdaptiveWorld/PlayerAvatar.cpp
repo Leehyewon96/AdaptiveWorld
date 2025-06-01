@@ -68,3 +68,8 @@ void APlayerAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
+void APlayerAvatar::Attack_RPC_Implementation()
+{
+	Attack_Broadcast_RPC();
+}
+

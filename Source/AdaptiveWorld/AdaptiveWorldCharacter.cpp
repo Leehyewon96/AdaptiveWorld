@@ -11,18 +11,55 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "HealthBarWidget.h"
+#include <Net/UnrealNetwork.h>
 
 AAdaptiveWorldCharacter::AAdaptiveWorldCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 }
 
 void AAdaptiveWorldCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	auto components = GetComponents();
+
 	_AnimInstance = Cast<UAdaptiveWorldAnimInstance>(GetMesh()->GetAnimInstance());
 	_HealthPoints = HealthPoints;
+}
+
+void AAdaptiveWorldCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AAdaptiveWorldCharacter, _HealthPoints);
+}
+
+void AAdaptiveWorldCharacter::OnHealthPointsChanged()
+{
+	if (HealthBarWidget != nullptr)
+	{
+		float normalizedHealth = FMath::Clamp(
+			(float)_HealthPoints / HealthPoints, 0.0f, 1.0f);
+		auto healthBar = Cast<UHealthBarWidget>(HealthBarWidget);
+		healthBar->HealthProgressBar->SetPercent(normalizedHealth);
+	}
+
+	if (_AnimInstance != nullptr)
+	{
+		_AnimInstance->State = ECharacterState::Hit;
+	}
+
+	if (IsKilled())
+	{
+		PrimaryActorTick.bCanEverTick = false;
+	}
+}
+
+void AAdaptiveWorldCharacter::Attack_Broadcast_RPC_Implementation()
+{
+	Attack();
 }
 
 void AAdaptiveWorldCharacter::Tick(float DeltaSeconds)
@@ -63,12 +100,10 @@ void AAdaptiveWorldCharacter::Hit(int damage)
 		return;
 	}
 
-	_HealthPoints -= damage;
-
-	_AnimInstance->State = ECharacterState::Hit;
-	if (IsKilled())
+	if (GetNetMode() == NM_ListenServer && HasAuthority())
 	{
-		PrimaryActorTick.bCanEverTick = false;
+		_HealthPoints -= damage;
+		OnHealthPointsChanged();
 	}
 }
 

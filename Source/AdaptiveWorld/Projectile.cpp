@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Projectile.h"
@@ -24,46 +24,49 @@ void AProjectile::BeginPlay()
 	Reset();
 }
 
-// Called every frame
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GetNetMode() == NM_Client)
+	{
+		return;
+	}
+
 	if (_LifeCountingDown > 0.0f)
 	{
-		//ÀÌµ¿
 		FVector currentLocation = GetActorLocation();
-		FVector val = GetActorRotation().RotateVector(FVector::ForwardVector) * Speed * DeltaTime;
-		FVector nextLocation = currentLocation + val;
+		FVector vel = GetActorRotation().RotateVector(FVector::ForwardVector) * Speed * DeltaTime;
+		FVector nextLocation = currentLocation + vel;
 		SetActorLocation(nextLocation);
 
-		//Ãæµ¹ °¨Áö
+		//Ray cast check
 		FHitResult hitResult;
 		FCollisionObjectQueryParams objCollisionQueryParams;
 		objCollisionQueryParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Pawn);
 
-		if (GetWorld()->LineTraceSingleByObjectType(hitResult,
-			currentLocation,
-			nextLocation,
-			objCollisionQueryParams))
+		if (GetWorld()->LineTraceSingleByObjectType(hitResult, currentLocation, nextLocation, objCollisionQueryParams))
 		{
 			auto playerAvatar = Cast<APlayerAvatar>(hitResult.GetActor());
 			if (playerAvatar != nullptr)
 			{
 				playerAvatar->Hit(Damage);
+				//Destroy();
 				_AdaptiveWorldGameMode->RecycleFireball(this);
+
 			}
 		}
 
-
+		//Reduce time
 		_LifeCountingDown -= DeltaTime;
 	}
 	else
 	{
-		PrimaryActorTick.bCanEverTick = false;
-		Destroy();
+		//Destroy()
+		_AdaptiveWorldGameMode->RecycleFireball(this);
 	}
 }
+
 
 void AProjectile::Reset()
 {

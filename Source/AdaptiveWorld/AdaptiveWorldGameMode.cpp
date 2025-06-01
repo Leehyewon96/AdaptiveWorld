@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AdaptiveWorldGameMode.h"
 #include "AdaptiveWorldPlayerController.h"
@@ -64,5 +64,6 @@ void AAdaptiveWorldGameMode::RecycleFireball(AProjectile* projectile)
 	projectile->SetActorHiddenInGame(true);
 	projectile->SetActorEnableCollision(false);
 	projectile->SetActorTickEnabled(false);
+
 	_FireballPool.Enqueue(projectile);
 }

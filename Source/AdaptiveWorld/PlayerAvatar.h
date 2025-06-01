@@ -47,4 +47,6 @@ public:
 		return _cameraComponent;
 	}
 	
+	UFUNCTION(Server, Reliable)
+	void Attack_RPC();
 };
