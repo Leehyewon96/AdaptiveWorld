@@ -51,9 +51,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	class UAdaptiveWorldAnimInstance* _AnimInstance;
-	UPROPERTY(Replicated = OnHealthPointsChanged)
+
+	UPROPERTY(ReplicatedUsing = OnHealthPointsChanged)
 	int _HealthPoints;
+
 	float _AttackCountingDown;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UUserWidget* HealthBarWidget;
 
@@ -61,6 +64,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Attack_Broadcast_RPC();
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UFUNCTION()
 	void OnHealthPointsChanged();
 
