@@ -14,3 +14,9 @@ void AAdaptiveWorldGameState::OnTimerChanged()
 {
 	OnTimerChangedDelegate.Broadcast(Timer);
 }
+
+void AAdaptiveWorldGameState::OnGameWin()
+{
+	GameWin = true;
+	OnGameWinLoseDelegate.Broadcast(true);
+}

@@ -7,6 +7,7 @@
 #include "Weapon.h"
 #include "AdaptiveWorldCharacter.h"
 #include "AdaptiveWorldGameMode.h"
+#include "AdaptiveWorldGameState.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -41,6 +42,10 @@ void ADefenseTower::BeginPlay()
 	SetActorTickInterval(0.5f);
 
 	_AdaptiveWorldGameMode = Cast<AAdaptiveWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+}
+
+void ADefenseTower::OnHealthPointsChanged()
+{
 }
 
 void ADefenseTower::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -126,5 +131,34 @@ void ADefenseTower::Fire()
 
 void ADefenseTower::Hit(int damage)
 {
+	if (IsKilled())
+	{
+		return;
+	}
+
+	if (GetNetMode() == ENetMode::NM_ListenServer && HasAuthority())
+	{
+		_HealthPoints -= damage;
+		OnHealthPointsChanged();
+
+		if (_HealthPoints <= 0)
+		{
+			if (IsBase)
+			{
+				AAdaptiveWorldGameState* gameState = Cast<AAdaptiveWorldGameState>
+					(UGameplayStatics::GetGameState(GetWorld()));
+				gameState->OnGameWin();
+			}
+			else
+			{
+				Destroy();
+			}
+		}
+	}
+}
+
+bool ADefenseTower::IsKilled()
+{
+	return (HealthPoints <= 0.0f);
 }
 

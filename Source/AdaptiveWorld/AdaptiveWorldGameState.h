@@ -10,6 +10,7 @@
  * 
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerChangedDelegate, float, Timer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameWinLoseDelegate, bool, Win);
 
 UCLASS()
 class ADAPTIVEWORLD_API AAdaptiveWorldGameState : public AGameStateBase
@@ -19,6 +20,9 @@ class ADAPTIVEWORLD_API AAdaptiveWorldGameState : public AGameStateBase
 public:
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(BlueprintAssignable, Category = "AdaptiveWorld")
+	FOnTimerChangedDelegate OnTimerChangedDelegate;
+
 	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld")
 	void OnTimerChanged();
 
@@ -27,6 +31,14 @@ public:
 	
 
 public:
+
 	UPROPERTY(BlueprintAssignable, Category = "AdaptiveWorld")
-	FOnTimerChangedDelegate OnTimerChangedDelegate;
+	FOnGameWinLoseDelegate OnGameWinLoseDelegate;
+	
+	UFUNCTION(BlueprintCallable, Category = "AdativeWorld")
+	void OnGameWin();
+
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnGameWin, Category = "AdaptiveWorld")
+	bool GameWin;
 };

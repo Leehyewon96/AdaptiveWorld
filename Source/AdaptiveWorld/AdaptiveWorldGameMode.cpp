@@ -4,6 +4,7 @@
 #include "AdaptiveWorldPlayerController.h"
 #include "AdaptiveWorldCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "AdaptiveWorldGameState.h"
 
 AAdaptiveWorldGameMode::AAdaptiveWorldGameMode()
 {
@@ -24,7 +25,7 @@ AAdaptiveWorldGameMode::AAdaptiveWorldGameMode()
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
 
-
+	GameStateClass = AAdaptiveWorldGameState::StaticClass();
 }
 
 AAdaptiveWorldGameMode::~AAdaptiveWorldGameMode()

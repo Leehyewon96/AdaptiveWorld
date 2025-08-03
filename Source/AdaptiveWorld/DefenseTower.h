@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tower Params")
 	float ReloadInterval = 1.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Tower Params")
+	bool IsBase = false;
+
 	class APlayerAvatar* _Target = nullptr;
 
 protected:
@@ -36,6 +39,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	int _HealthPoints;
+
+	UFUNCTION()
+	void OnHealthPointsChanged();
+
 	float _ReloadCountingDown;
 
 	class AAdaptiveWorldGameMode* _AdaptiveWorldGameMode;
@@ -63,6 +70,7 @@ public:
 	bool CanFire();
 	void Fire();
 	void Hit(int damage);
+	bool IsKilled();
 
 	FORCEINLINE USphereComponent* GetBoxComponent() const
 	{
@@ -92,5 +100,4 @@ public:
 
 protected:
 	void DestroyProcess();
-
 };
