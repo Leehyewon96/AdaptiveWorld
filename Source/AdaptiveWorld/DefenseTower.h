@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "Projectile.h"
 #include "DefenseTower.generated.h"
 
 UCLASS(Blueprintable)
@@ -16,6 +17,8 @@ class ADAPTIVEWORLD_API ADefenseTower : public AActor
 public:
 	// Sets default values for this actor's properties
 	ADefenseTower();
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(EditAnywhere, Category = "Tower Params")
 	int HealthPoints = 100;
@@ -29,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tower Params")
 	float ReloadInterval = 1.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UUserWidget* HealthBarWidget;
+
 	UPROPERTY(EditAnywhere, Category = "Tower Params")
 	bool IsBase = false;
 
@@ -38,6 +44,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(Replicatedusing = OnHealthPointsChanged)
 	int _HealthPoints;
 
 	UFUNCTION()

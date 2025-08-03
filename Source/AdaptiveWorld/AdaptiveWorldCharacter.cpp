@@ -28,6 +28,7 @@ void AAdaptiveWorldCharacter::BeginPlay()
 
 	_AnimInstance = Cast<UAdaptiveWorldAnimInstance>(GetMesh()->GetAnimInstance());
 	_HealthPoints = HealthPoints;
+	OnHealthPointsChanged();
 }
 
 void AAdaptiveWorldCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +66,18 @@ void AAdaptiveWorldCharacter::Attack_Broadcast_RPC_Implementation()
 void AAdaptiveWorldCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+	_AnimInstance->Speed = GetCharacterMovement()->Velocity.Size2D();
+
+	if (_AttackCountingDown == AttackInterval)
+	{
+		_AnimInstance->State = ECharacterState::Attack;
+	}
+
+	if (_AttackCountingDown > 0.0f)
+	{
+		_AttackCountingDown -= DeltaSeconds;
+	}
 }
 
 float AAdaptiveWorldCharacter::GetHealthPoints()

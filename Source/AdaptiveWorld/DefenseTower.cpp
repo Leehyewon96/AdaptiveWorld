@@ -2,14 +2,17 @@
 
 
 #include "DefenseTower.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "PlayerAvatar.h"
 #include "Projectile.h"
 #include "Weapon.h"
-#include "AdaptiveWorldCharacter.h"
+#include "HealthBarWidget.h"
 #include "AdaptiveWorldGameMode.h"
 #include "AdaptiveWorldGameState.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include <Net/UnrealNetwork.h>
 
 // Sets default values
 ADefenseTower::ADefenseTower()
@@ -35,17 +38,39 @@ ADefenseTower::ADefenseTower()
 	
 }
 
+void ADefenseTower::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADefenseTower, _HealthPoints);
+}
+
 // Called when the game starts or when spawned
 void ADefenseTower::BeginPlay()
 {
 	Super::BeginPlay();
+	//_SphereComponent->SetSphereRadius(AttackRange);
 	SetActorTickInterval(0.5f);
 
 	_AdaptiveWorldGameMode = Cast<AAdaptiveWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	_HealthPoints = HealthPoints;
+	OnHealthPointsChanged();
 }
 
 void ADefenseTower::OnHealthPointsChanged()
 {
+	if (HealthBarWidget != nullptr)
+	{
+		float normalizedHealth = FMath::Clamp(
+			(float)_HealthPoints / HealthPoints, 0.0f, 1.0f);
+		auto healthBar = Cast<UHealthBarWidget>(HealthBarWidget);
+		healthBar->HealthProgressBar->SetPercent(normalizedHealth);
+	}
+
+	if (IsKilled())
+	{
+		PrimaryActorTick.bCanEverTick = false;
+	}
 }
 
 void ADefenseTower::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -102,17 +127,17 @@ void ADefenseTower::Tick(float DeltaTime)
 
 int ADefenseTower::GetHealthPoints()
 {
-	return 0;
+	return _HealthPoints;
 }
 
 bool ADefenseTower::IsDestroyed()
 {
-	return false;
+	return (_HealthPoints > 0.0f);
 }
 
 bool ADefenseTower::CanFire()
 {
-	return false;
+	return (_ReloadCountingDown <= 0.0f);
 }
 
 void ADefenseTower::Fire()
@@ -159,6 +184,6 @@ void ADefenseTower::Hit(int damage)
 
 bool ADefenseTower::IsKilled()
 {
-	return (HealthPoints <= 0.0f);
+	return (_HealthPoints <= 0.0f);
 }
 

@@ -31,7 +31,6 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	_HealthPoints = HealthPoints;
 
 	_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(_WeaponClass));
 	if (_Weapon && GetMesh() && GetMesh()->DoesSocketExist("hand_r"))
