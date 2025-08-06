@@ -23,11 +23,12 @@ ADefenseTower::ADefenseTower()
 	_SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
 	SetRootComponent(_SphereComponent);
 
+	_SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ADefenseTower::OnBeginOverlap);
+	_SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ADefenseTower::OnEndOverlap);
+
 	_MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh"));
 	_MeshComponent->SetupAttachment(_SphereComponent);
 
-	_SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ADefenseTower::OnBeginOverlap);
-	_SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ADefenseTower::OnEndOverlap);
 
 	static ConstructorHelpers::FObjectFinder<UBlueprint> blueprint_finder(
 		TEXT("Blueprint'/Game/TopDown/Blueprints/BP_Fireball.BP_Fireball'"));
@@ -49,7 +50,7 @@ void ADefenseTower::BeginPlay()
 {
 	Super::BeginPlay();
 	//_SphereComponent->SetSphereRadius(AttackRange);
-	SetActorTickInterval(0.5f);
+	SetActorTickInterval(ReloadInterval);
 
 	_AdaptiveWorldGameMode = Cast<AAdaptiveWorldGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 

@@ -27,39 +27,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UNiagaraSystem* FXCursor;
 
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
 	
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* SetDestinationClickAction;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* SetDestinationTouchAction;
-
-	void OnAttackPressed();
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
+	// Begin PlayerController interface
+	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
-	
-	// To add mapping context
-	virtual void BeginPlay();
+	// End PlayerController interface
 
 	/** Input handlers for SetDestination action. */
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
+	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
+	void OnTouchPressed(const ETouchIndex::Type FingerIndex, const FVector Location);
+	void OnTouchReleased(const ETouchIndex::Type FingerIndex, const FVector Location);
+
+	/** Input Handlers for Attack action. */
+	void OnAttackPressed();
 
 private:
-	FVector CachedDestination;
-
+	bool bInputPressed;
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
 };

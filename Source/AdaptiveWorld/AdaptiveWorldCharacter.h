@@ -18,7 +18,7 @@ public:
 	int HealthPoints = 100;
 
 	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
-	float Strength = 5;
+	float Strength = 50;
 
 	UPROPERTY(EditAnywhere, Category = "AdaptiveWorld Character Params")
 	float Armor = 1;
@@ -45,7 +45,7 @@ public:
 
 	virtual void Attack();
 	virtual void Hit(int damage);
-	void DieProcess();
+	virtual void DieProcess();
 
 protected:
 	virtual void BeginPlay() override;

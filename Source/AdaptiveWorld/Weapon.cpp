@@ -55,15 +55,12 @@ void AWeapon::OnWeaponBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 				FName("hand_r"));
 		}
 	}
-	else if (IsWithinAttackRange(0.0f, OtherActor))
-	{
-		//deal damage to the target : hero or enemy
-	}
 }
 
 bool AWeapon::IsWithinAttackRange(float AttackRange, AActor* Target)
 {
-	return false;
+	float distance = FVector::Distance(Target->GetActorLocation(), GetActorLocation());
+	return (AttackRange <= 0.0f || distance <= AttackRange);
 }
 
 // Called every frame

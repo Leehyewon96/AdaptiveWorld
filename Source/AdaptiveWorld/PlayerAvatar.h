@@ -7,7 +7,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AdaptiveWorldCharacter.h"
+#include "Weapon.h"
 #include "PlayerAvatar.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerIsKilledDelegate);
 
 UCLASS(Blueprintable)
 class ADAPTIVEWORLD_API APlayerAvatar : public AAdaptiveWorldCharacter
@@ -37,6 +40,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|PlayerAvatar")
+	void AttachWeapon(AWeapon* Weapon);
+
+	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|PlayerAvatar")
+	void DropWeapon();
+
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() const
 	{
 		return _springArmComponent;
@@ -49,4 +58,9 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void Attack_RPC();
+
+	UPROPERTY(BlueprintAssignable, Category = "AdaptiveWorld|PlayerAvatar")
+	FOnPlayerIsKilledDelegate OnPlayerIsKilledDelegate;
+
+	void DieProcess() override;
 };
