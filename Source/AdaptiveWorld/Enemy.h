@@ -23,12 +23,16 @@ protected:
 
 	APawn* _chasedTarget = nullptr;
 
-	UClass* _WeaponClass; //해머의 블루프린트 클래스 타입 저장 용도
+	//UClass* _WeaponClass;
 	AWeapon* _Weapon;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void DieProcess() override;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> WeaponClass;
 
 	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|Enemy")
 	void Chase(APawn* targetPawn);

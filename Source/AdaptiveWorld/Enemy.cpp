@@ -12,19 +12,17 @@
 // Sets default values
 AEnemy::AEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> blueprint_finder(
+	/*static ConstructorHelpers::FObjectFinder<UBlueprint> blueprint_finder(
 		TEXT("Blueprint'/Game/TopDown/Blueprints/BP_Hammer.BP_Hammer'"));
 
 	if (blueprint_finder.Object)
 	{
 		_WeaponClass = (UClass*)blueprint_finder.Object->GeneratedClass;
-	}
-	
+	}*/
 }
 
 // Called when the game starts or when spawned
@@ -32,7 +30,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(_WeaponClass));
+	_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(WeaponClass));
 	if (_Weapon && GetMesh() && GetMesh()->DoesSocketExist("hand_r"))
 	{
 		_Weapon->AttachToComponent(GetMesh(),
@@ -51,10 +49,17 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	_AnimInstance->Speed = GetCharacterMovement()->Velocity.Size2D();
+	//타겟 설정 갱신
+	if (_chasedTarget != nullptr && _AnimInstance->State == ECharacterState::Locomotion)
+	{
+		auto enemyController = Cast<AEnemyController>(GetController());
+		enemyController->MakeAttackDecision(_chasedTarget);
+	}
+
+	//_AnimInstance->Speed = GetCharacterMovement()->Velocity.Size2D();
 
 	//공격관련 상태 갱신
-	if (_AttackCountingDown == AttackInterval)
+	/*if (_AttackCountingDown == AttackInterval)
 	{
 		_AnimInstance->State = ECharacterState::Attack;
 	}
@@ -62,24 +67,32 @@ void AEnemy::Tick(float DeltaTime)
 	if (_AttackCountingDown > 0.0f)
 	{
 		_AttackCountingDown -= DeltaTime;
-	}
+	}*/
 
-	//타겟 설정 갱신
-	if (_chasedTarget != nullptr && _AnimInstance->State == ECharacterState::Locomotion)
-	{
-		auto enemyController = Cast<AEnemyController>(GetController());
-		enemyController->MakeAttackDecision(_chasedTarget);
-	}
+	
+}
+
+void AEnemy::DieProcess()
+{
+	Super::DieProcess();
+	_Weapon->Destroy();
 }
 
 void AEnemy::Chase(APawn* targetPawn)
 {
-	auto animInst = GetMesh()->GetAnimInstance();
+	if (targetPawn != nullptr && _AnimInstance->State == ECharacterState::Locomotion)
+	{
+		auto enemyController = Cast<AEnemyController>(GetController());
+		enemyController->MoveToActor(targetPawn, 90.0f);
+	}
+	_chasedTarget = targetPawn;
+
+	/*auto animInst = GetMesh()->GetAnimInstance();
 	auto enemyAnimInst = Cast<UAdaptiveWorldAnimInstance>(animInst);
 	if (enemyAnimInst->State == ECharacterState::Locomotion)
 	{
 		auto enemyController = Cast<AEnemyController>(GetController());
 		enemyController->MoveToActor(targetPawn, 90.0f);
 	}
-	_chasedTarget = targetPawn;
+	_chasedTarget = targetPawn;*/
 }

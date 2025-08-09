@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HealthBarWidget.h"
 #include "GameFramework/Character.h"
+
 #include "AdaptiveWorldCharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -63,6 +65,7 @@ protected:
 public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Attack_Broadcast_RPC();
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
