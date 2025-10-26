@@ -47,11 +47,6 @@ void AAdaptiveWorldCharacter::OnHealthPointsChanged()
 		healthBar->HealthProgressBar->SetPercent(normalizedHealth);
 	}
 
-	if (_AnimInstance != nullptr)
-	{
-		_AnimInstance->State = ECharacterState::Hit;
-	}
-
 	if (IsKilled())
 	{
 		PrimaryActorTick.bCanEverTick = false;
@@ -116,6 +111,12 @@ void AAdaptiveWorldCharacter::Hit(int damage)
 	if (GetNetMode() == NM_ListenServer && HasAuthority())
 	{
 		_HealthPoints -= damage;
+
+		if (_AnimInstance != nullptr)
+		{
+			_AnimInstance->State = ECharacterState::Hit;
+		}
+
 		OnHealthPointsChanged();
 	}
 }
