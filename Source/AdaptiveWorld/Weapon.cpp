@@ -4,6 +4,7 @@
 #include "Weapon.h"
 #include "PlayerAvatar.h"
 #include "DefenseTower.h"
+#include "AdaptiveWorldCharacter.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -53,6 +54,22 @@ void AWeapon::OnWeaponBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 			AttachToComponent(Holder->GetMesh(),
 				FAttachmentTransformRules::SnapToTargetIncludingScale,
 				FName("hand_r"));
+		}
+	}
+	else
+	{
+		// 공격자(Holder)와 피해자(OtherActor)를 가져옴
+		auto Attacker = Cast<AAdaptiveWorldCharacter>(Holder);
+		auto Victim = Cast<AAdaptiveWorldCharacter>(OtherActor);
+
+		// 피해자가 캐릭터이고, 공격자가 아니며(자해 방지), 공격자가 공격 모션 중일 때만
+		if (Attacker && Victim && Attacker != Victim)
+		{
+			if (Attacker->IsAttacking())
+			{
+				// 피해자에게 데미지 적용
+				Victim->Hit(Strength);
+			}
 		}
 	}
 }

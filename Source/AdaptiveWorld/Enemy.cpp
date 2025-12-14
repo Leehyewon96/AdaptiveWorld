@@ -16,13 +16,14 @@ AEnemy::AEnemy()
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
 
-	/*static ConstructorHelpers::FObjectFinder<UBlueprint> blueprint_finder(
+	static ConstructorHelpers::FObjectFinder<UBlueprint> blueprint_finder(
+		//TEXT("Blueprint'/Game/TopDown/Blueprints/BP_Axe.BP_Axe'"));
 		TEXT("Blueprint'/Game/TopDown/Blueprints/BP_Hammer.BP_Hammer'"));
 
 	if (blueprint_finder.Object)
 	{
 		_WeaponClass = (UClass*)blueprint_finder.Object->GeneratedClass;
-	}*/
+	}
 }
 
 // Called when the game starts or when spawned
@@ -30,7 +31,19 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(WeaponClass));
+	if (_WeaponClass)
+	{
+		// 여기서 진짜로 생성(Spawn) 됨
+		_Weapon = Cast<AWeapon>(GetWorld()->SpawnActor(_WeaponClass));
+
+		// 손에 붙이기
+		if (_Weapon)
+		{
+			_Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("hand_r"));
+			_Weapon->Holder = this;
+		}
+	}
+
 	if (_Weapon && GetMesh() && GetMesh()->DoesSocketExist("hand_r"))
 	{
 		_Weapon->AttachToComponent(GetMesh(),

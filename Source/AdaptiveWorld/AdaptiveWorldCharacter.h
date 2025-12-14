@@ -32,6 +32,10 @@ public:
 	float AttackInterval = 3.0f;
 
 public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "AdaptiveWorld Character Params")
+	bool IsAttackingByBlend = false;
+
+public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -44,6 +48,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AdaptiveWorld|Character")
 	bool CanAttack();
 	bool IsAttacking();
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void SetIsAttacking(bool bNewState);
 
 	virtual void Attack();
 	virtual void Hit(int damage);

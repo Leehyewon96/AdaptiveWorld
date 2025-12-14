@@ -23,7 +23,7 @@ protected:
 
 	APawn* _chasedTarget = nullptr;
 
-	//UClass* _WeaponClass;
+	UClass* _WeaponClass;
 	AWeapon* _Weapon;
 
 public:	

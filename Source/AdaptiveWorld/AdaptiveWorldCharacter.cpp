@@ -92,7 +92,7 @@ bool AAdaptiveWorldCharacter::CanAttack()
 
 bool AAdaptiveWorldCharacter::IsAttacking()
 {
-	return (_AnimInstance->State == ECharacterState::Attack);
+	return (_AnimInstance->State == ECharacterState::Attack || IsAttackingByBlend);
 }
 
 void AAdaptiveWorldCharacter::Attack()
